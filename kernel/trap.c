@@ -76,14 +76,16 @@ usertrap(void)
   if(p->killed)
     exit(-1);
 
-  if(which_dev == 2){   
-    if(p->interval != 0 && ++p->passedticks == p->interval){  
-      p->trapframecopy = p->trapframe + 288;  
-      memmove(p->trapframecopy,p->trapframe,sizeof(struct trapframe));
-      p->trapframe->epc = p->handler;
+  // lab4-3
+  if(which_dev == 2){   // timer interrupt
+    // increase the passed ticks
+    if(p->interval != 0 && ++p->passedticks == p->interval){
+      // trapframecopy use the page of trapframe
+      p->trapframecopy = p->trapframe + 512;
+      memmove(p->trapframecopy, p->trapframe, sizeof(struct trapframe));   // copy trapframe
+      p->trapframe->epc = p->handler;   // execute handler() when return to user space
     }
   }
-
   // give up the CPU if this is a timer interrupt.
   if(which_dev == 2)
     yield();
@@ -225,4 +227,3 @@ devintr()
     return 0;
   }
 }
-
